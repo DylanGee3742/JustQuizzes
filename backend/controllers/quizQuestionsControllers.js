@@ -1,9 +1,10 @@
 
 const getQuizQuestions = async (req, res, next) => {
     const client = req.client
+    const id = req.params.id
     try {
 
-        const response = await client.query('SELECT * FROM questions')
+        const response = await client.query('SELECT * FROM questions WHERE id = $1', [id])
 
         res.status(200).json(response.rows)
 
