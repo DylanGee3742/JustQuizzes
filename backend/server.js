@@ -3,6 +3,7 @@ const app = express()
 const cors = require('cors')
 const getConnection = require('./middleware/connect_db')
 const quizQuestionRoutes = require('./routes/quizQuestionsRoute')
+const quizAnswersRoutes = require('./routes/quizAnswersRoute')
 const PORT = process.env.PORT || 5000;
 require('dotenv').config()
 
@@ -11,6 +12,7 @@ app.use(express.json())
 app.use(getConnection)
 
 app.use('/quiz-questions', quizQuestionRoutes)
+app.use('/quiz-answers', quizAnswersRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server Running on port ${PORT}`)
