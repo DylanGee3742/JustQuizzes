@@ -36,11 +36,9 @@ export default function QuizCard() {
         getQuestionsAnswers()
     }, [])
 
-
     useEffect(() => {
         findAndDisplayQuestion()
     }, [questionNumber])
-
 
     return (
         <div>
