@@ -9,7 +9,7 @@ function App() {
     createRoutesFromElements(
       <Route path='/' element={<MainLayout />}>
         <Route index element={<Home />} />
-        <Route path='/quiz/:id' element={<Quiz />} />
+        <Route path='/quiz/:slug' element={<Quiz />} />
         <Route path='/results/' element={<Result />} />
       </Route>
     )
