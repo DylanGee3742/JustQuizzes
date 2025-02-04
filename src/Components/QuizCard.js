@@ -3,11 +3,14 @@ import axios from 'axios'
 import { useParams } from 'react-router-dom'
 import { Container, Card, Button, ListGroup, Row, Col } from 'react-bootstrap'
 
-export default function QuizCard() {
+export default function QuizCard({loadResult}) {
     const slug = useParams().slug
     const [questionAnswers, setQuestionAnswers] = useState([])
     const [questionNumber, setQuestionNumber] = useState(0)
     const [question, setQuestion] = useState([])
+    const [selectedAnswer, setSelectedAnswer] = useState({});
+    const [finalResult, setFinalResult] = useState(null);
+
 
     const getQuestionsAnswers = async () => {
         try {
@@ -29,9 +32,32 @@ export default function QuizCard() {
         }
     }
 
-    const handleRadioChange = (value) => {
-        console.log(value)
+    const handleRadioChange = (questionId, selectedValue) => {
+        setSelectedAnswer((prev) => ({
+            ...prev,
+            [questionId]: selectedValue
+        }));
     }
+
+    const calculateResult = () => {
+        const answerCounts = {};
+    
+        // Iterate through selected answers
+        Object.values(selectedAnswer).forEach((answerArray) => {
+            // Ensure it's an array, then count each answer sign separately
+            (Array.isArray(answerArray) ? answerArray : [answerArray]).forEach((answer) => {
+                answerCounts[answer] = (answerCounts[answer] || 0) + 1;
+            });
+        });
+    
+        // Find the answer with the highest count
+        const mostFrequentanswer = Object.keys(answerCounts).reduce((a, b) =>
+            answerCounts[a] > answerCounts[b] ? a : b
+        );
+    
+        loadResult(mostFrequentanswer)
+    };
+    
 
     useEffect(() => {
         getQuestionsAnswers()
@@ -43,44 +69,87 @@ export default function QuizCard() {
 
     return (
         <>
-            <Container className='mt-5'>
+            <Container className="mt-5">
                 {question && (
                     <Card>
-                        <Card.Header className='text-center'>{slug}</Card.Header>
+                        <Card.Header className="text-center">{slug}</Card.Header>
                         <Card.Body>
-                            <Card.Title> <h3>{question.question}</h3></Card.Title>
+                            <Card.Title>
+                                <h3>{question.question}</h3>
+                            </Card.Title>
                             <Card.Text>
                                 {question.options?.map((opt) => (
-                                    <ListGroup>
-                                        <ListGroup.Item> 
-                                            <label key={opt.label}>
-                                            <input
-                                                type="radio"
-                                                name="quiz" // Ensures only one can be selected
-                                                value={opt.value}
-                                                // checked={selectedAnswer === opt.value}
-                                                onChange={() => handleRadioChange(opt.value)}
-                                            />
-                                            {opt.label}
-                                        </label>
+                                    <ListGroup key={opt.label}>
+                                        <ListGroup.Item>
+                                            <label>
+                                                <input
+                                                    type="radio"
+                                                    name={`question-${question.id}`} // Ensures only one can be selected
+                                                    value={opt.value}
+                                                    checked={selectedAnswer[question.id] === opt.value}
+                                                    onChange={() => handleRadioChange(question.id, opt.value)}
+                                                />
+                                                {opt.label}
+                                            </label>
                                         </ListGroup.Item>
                                     </ListGroup>
                                 ))}
                             </Card.Text>
-                            {questionNumber == 0 ? <button onClick={() => setQuestionNumber(questionNumber + 1)}>Forward</button> :
+
+                            {/* Navigation Buttons */}
+                            {questionNumber === 0 ? (
                                 <Row>
-                                    <Col>
-                                    <Button variant="light" className="d-flex border 1px solid black justify-content-start" onClick={() => setQuestionNumber(questionNumber - 1)}>Back</Button>
-                                    </Col>
-                                    <Col className='d-flex justify-content-end'>
-                                    <Button variant="light" className="border" onClick={() => setQuestionNumber(questionNumber + 1)}>Forward</Button>
+                                    <Col className="d-flex justify-content-end">
+                                        <Button variant='light' className='border' onClick={() => setQuestionNumber(questionNumber + 1)}>Forward</Button>
                                     </Col>
                                 </Row>
-                            }
+                            ) : questionNumber === 10 ? (
+                                <Row>
+                                    <Col>
+                                        <Button
+                                            variant="light"
+                                            className="d-flex border 1px solid black justify-content-start"
+                                            onClick={() => setQuestionNumber(questionNumber - 1)}
+                                        >
+                                            Back
+                                        </Button>
+                                    </Col>
+                                    <Col className="d-flex justify-content-end">
+                                        {selectedAnswer[question.id] && (
+                                            <Button variant="light" className="border" onClick={calculateResult}>
+                                                Finish
+                                            </Button>
+                                        )}
+                                    </Col>
+                                </Row>
+                            ) : (
+                                <Row>
+                                    <Col>
+                                        <Button
+                                            variant="light"
+                                            className="d-flex border 1px solid black justify-content-start"
+                                            onClick={() => setQuestionNumber(questionNumber - 1)}
+                                        >
+                                            Back
+                                        </Button>
+                                    </Col>
+                                    <Col className="d-flex justify-content-end">
+                                        {selectedAnswer[question.id] && (
+                                            <Button
+                                                variant="light"
+                                                className="border"
+                                                onClick={() => setQuestionNumber(questionNumber + 1)}
+                                            >
+                                                Forward
+                                            </Button>
+                                        )}
+                                    </Col>
+                                </Row>
+                            )}
                         </Card.Body>
                     </Card>
                 )}
             </Container>
         </>
     )
-}
+};    
