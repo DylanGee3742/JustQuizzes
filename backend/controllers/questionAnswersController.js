@@ -2,20 +2,24 @@ const questionAnswers = async (req, res, next) => {
     const client = req.client
     const id = req.id
     const title = req.title
+    const slug = req.params.slug
 
     try {
-        const query = `
+        question_table = `"${slug}-questions"`
+        answers_table = `"${slug}-answers"`
+    
+       const query = `
         SELECT 
             q.id, 
             q.text AS question,
         json_agg(
             json_build_object(
                 'label', a.text,
-                'value', a.zodiac_signs
+                'value', a.answer
             )
         ) AS options
-        FROM questions q
-        JOIN answers a ON q.id = a.question_id
+        FROM ${question_table} q
+        JOIN ${answers_table} a ON q.id = a.question_id
         WHERE q.quiz_id = $1
         GROUP BY q.id, q.text;`
 
