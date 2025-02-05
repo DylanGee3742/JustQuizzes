@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useParams } from 'react-router-dom'
 import { Container, Card, Button, ListGroup, Row, Col } from 'react-bootstrap'
 
+
 export default function QuizCard({loadResult}) {
     const slug = useParams().slug
     const [questionAnswers, setQuestionAnswers] = useState([])
@@ -10,7 +11,6 @@ export default function QuizCard({loadResult}) {
     const [question, setQuestion] = useState([])
     const [selectedAnswer, setSelectedAnswer] = useState({});
     const [finalResult, setFinalResult] = useState(null);
-
 
     const getQuestionsAnswers = async () => {
         try {
