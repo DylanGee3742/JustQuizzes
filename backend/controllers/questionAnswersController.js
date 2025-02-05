@@ -30,6 +30,8 @@ const questionAnswers = async (req, res, next) => {
     } catch (e) {
         console.log('Error getting questions & answers: ', e)
         res.status(500).send('Error getting questions & answers: ', e)
+    } finally {
+        client.release()
     }
 }
 
